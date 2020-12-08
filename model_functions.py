@@ -15,9 +15,31 @@ def normalize(col):
     return (col - col.min()) / (col.max() - col.min())
 
 def vorp(df):
+    cols_to_norm = ['pts',
+    'min',
+    'fgm',
+    'fga',
+    'fg3m',
+    'fg3a',
+    'ftm',
+    'fta',
+    'oreb',
+    'dreb',
+    'ast',
+    'stl',
+    'tov',
+    'blk']
     for col_name in cols_to_norm:
         df['{}_norm'.format(col_name)] = normalize(df[col_name])
     return df
+
+def clean_dataframe(df):
+    df_new = df[df.season_id != current_player_season]
+    df_cleaned = df_new.dropna(how='any')
+    min_gp = 10
+    df_filter = df_cleaned[df_cleaned['gp'] > min_gp]
+    df_final = df_filter.groupby(['season_id']).apply(vorp)
+    return df_final
 
 # actual KNN player comparison tool
 def player_comparison_tool(df, current_player_season, current_player_id):
