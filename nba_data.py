@@ -1,5 +1,10 @@
 import requests
 import pandas as pd
+import numpy as np
+import datetime as dt
+from model_functions import filter_columns
+
+today = dt.datetime.today().strftime('%m%d%Y') 
 
 # use these headers to foll Adam Silver
 headers  = {
@@ -132,5 +137,37 @@ for season_id in season_list:
 
 final_df = pd.concat(dfs, sort=False)
 
+#filter data on season we want
+season_df = df.loc[df['season_id'] == '2019-20']
+# filter for the only columns we want
+players_df = season_df[['player_id', 'player_name']]
+# save to a CSV so we can join on it later
+players_df.to_csv('player_id_player_name.csv', index=False)
+
+needed_cols = [
+    'player_id',
+    'season_id',
+    'gp',
+    'age',
+    'min',
+    'fgm',
+    'fga',
+    'fg_pct',
+    'fg3m',
+    'fg3a',
+    'fg3_pct',
+    'ftm',
+    'fta',
+    'ft_pct',
+    'oreb',
+    'dreb',
+    'ast',
+    'tov',
+    'stl',
+    'blk',
+    'pts'
+]
+
+nba_data_df = filter_columns(final_df, needed_cols)
 # saving that dataframe to a CSV
-final_df.to_csv('player_general_traditional_per_game_data.csv', index=False)
+nba_data_df.to_csv('player_general_traditional_per_game_data_{}.csv'.format(today), index=False)

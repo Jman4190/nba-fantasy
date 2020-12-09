@@ -1,3 +1,13 @@
+import requests
+import pandas as pd
+import numpy as np
+import datetime as dt
+
+# filter columns needed
+def filter_columns(df, needed_cols):
+    df_filtered = df[needed_cols]
+    return df_filtered
+
 # function to calculate distance between two points
 def calc_distance(u, v):
     dist = np.sqrt(np.sum((u - v)**2))
@@ -14,8 +24,10 @@ def find_player(df, player_id, season):
 def normalize(col):
     return (col - col.min()) / (col.max() - col.min())
 
+# calculate normalized data from dataframe and using columns specified
 def vorp(df):
-    cols_to_norm = ['pts',
+    cols_to_norm = [
+    'pts',
     'min',
     'fgm',
     'fga',
@@ -33,14 +45,43 @@ def vorp(df):
         df['{}_norm'.format(col_name)] = normalize(df[col_name])
     return df
 
-def clean_dataframe(df):
-    df_new = df[df.season_id != current_player_season]
-    df_cleaned = df_new.dropna(how='any')
-    min_gp = 10
+# filter dataframe based on gp
+def clean_dataframe(df, current_player_season, games_played):
+    #df_new = df[df.season_id != current_player_season]
+    #df_cleaned = df_new.dropna(how='any')
+    df_cleaned = df.dropna(how='any')
+    min_gp = games_played
     df_filter = df_cleaned[df_cleaned['gp'] > min_gp]
     df_final = df_filter.groupby(['season_id']).apply(vorp)
     return df_final
 
+season_list = [
+    '1996-97',
+    '1997-98',
+    '1998-99',
+    '1999-00',
+    '2000-01',
+    '2001-02',
+    '2002-03',
+    '2003-04',
+    '2004-05',
+    '2005-06',
+    '2006-07',
+    '2007-08',
+    '2008-09',
+    '2009-10',
+    '2010-11',
+    '2011-12',
+    '2012-13',
+    '2013-14',
+    '2014-15',
+    '2015-16',
+    '2016-17',
+    '2017-18',
+    '2018-19',
+    '2019-20',
+    '2020-21']
+    
 # actual KNN player comparison tool
 def player_comparison_tool(df, current_player_season, current_player_id):
     if (((df['season_id'] == current_player_season) & (df['player_id'] == current_player_id)).any() == False):
@@ -143,6 +184,3 @@ def player_comparison_tool(df, current_player_season, current_player_id):
         projected_stats['proj_' + col] = (sum_stat / sum_weight)
         
     return projected_stats
-
-
-
